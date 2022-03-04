@@ -1,4 +1,5 @@
-const { token, prefix, footer, tba_key, tba_url, tba_awards } = require("./config.json");
+const { token, prefix, tba_key, tba_url, tba_awards } = require("./config.json");
+let { footer } = require("./config.json");
 
 console.log("bot is starting...");
 
@@ -41,6 +42,29 @@ function setStatus() {
 		}
 	}
 }
+
+const version_int = 1;
+let update_waiting = false;
+let old_footer = footer;
+async function checkForUpdates() {
+	try {
+		let version_details = await (await fetch("https://frcbot.togatech.org/version")).json();
+		if(version_details.latest_version_int > version_int && !update_waiting) {
+			update_waiting = true;
+			footer = `UPDATE AVAILABLE! Ask the moderators to update to FRC Bot version ${version_details.latest_version} by downloading the latest code from GitHub.\n\n${old_footer}`;
+		} else if(version_details.latest_version_int <= version_int) {
+			update_waiting = false;
+			footer = old_footer;
+		}
+	} catch(err) {
+		console.log(err);
+	}
+}
+
+setInterval(async () => {
+	checkForUpdates();
+}, 60000);
+checkForUpdates();
 
 client.on('ready', () => {
 	console.log('FRC Bot is online');
