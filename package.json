@@ -1,0 +1,15 @@
+{
+  "name": "frcbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kabir Ramzan",
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {
+    "discord.js": "^13.6.0",
+    "node-fetch": "^2.6.7"
+  }
+}
