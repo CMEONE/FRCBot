@@ -43,7 +43,8 @@ function setStatus() {
 	}
 }
 
-const version_int = 1;
+const version_int = 2;
+const version = "v1.0.1";
 let update_waiting = false;
 let old_footer = footer;
 async function checkForUpdates() {
@@ -51,7 +52,7 @@ async function checkForUpdates() {
 		let version_details = await (await fetch("https://frcbot.togatech.org/version")).json();
 		if(version_details.latest_version_int > version_int && !update_waiting) {
 			update_waiting = true;
-			footer = `UPDATE AVAILABLE! Ask the moderators to update to FRC Bot version ${version_details.latest_version} by downloading the latest code from GitHub.\n\n${old_footer}`;
+			footer = `UPDATE AVAILABLE! Ask the moderators to update to FRC Bot version ${version_details.latest_version} (currently using ${version}) by downloading the latest code from GitHub.\n\n${old_footer}`;
 		} else if(version_details.latest_version_int <= version_int) {
 			update_waiting = false;
 			footer = old_footer;
@@ -172,57 +173,81 @@ client.on("messageCreate", async (msg) => {
 		let resultEmbed;
 		switch (command) {
 			case `${prefix}help`:
-			resultEmbed = new Discord.MessageEmbed()
-				.setTitle("FRC Bot Help")
-				.setColor("#005FA8")
-				.setDescription("`{}` marks an input parameter, when specifying an input parameter, do not actually type the `{}`\n\n`?` marks an optional parameter, if you choose to specify an optional parameter, do not actually type the `?`, if you choose to not specify the parameter, leave the field blank\n\n`@user` refers to the user, not the username (example: <@!" + client.user.id + ">, not @FRC Bot)")
-				.addFields({
-					name: prefix + "team {team_number}",
-					value: "Shows information for a team",
-					inline: false
-				}, {
-					name: prefix + "event {event_key}",
-					value: "Shows information for an event",
-					inline: false
-				}, {
-					name: prefix + "teams {event_key}",
-					value: "Shows the teams registered for an event",
-					inline: false
-				}, {
-					name: prefix + "matches {event_key} {team_number}",
-					value: "Shows the matches for a team",
-					inline: false
-				}, {
-					name: prefix + "match {event_key} {type} {set} {match}",
-					value: "Shows the stats for a match (types are `quals`, `eighths`, `quarters`, `semis`, `finals`), for qualification and finals matches use `1` for set",
-					inline: false
-				}, {
-					name: prefix + "alliances {event_key}",
-					value: "Shows the elimination alliances for an event",
-					inline: false
-				}, {
-					name: prefix + "rankings {event_key}",
-					value: "Shows the rankings for an event",
-					inline: false
-				}, {
-					name: prefix + "awards {event_key}",
-					value: "Shows the awards for an event",
-					inline: false
-				}, {
-					name: prefix + "teamawards {team_number}",
-					value: "Shows the awards for a team",
-					inline: false
-				}, {
-					name: prefix + "teamevents {team_number}",
-					value: "Shows the events for a team",
-					inline: false
-				})
-				.setFooter({
-					text: footer
-				});
-				channel.send({ embeds: [resultEmbed] }).catch((err) => {
-					console.log(err);
-				});
+				resultEmbed = new Discord.MessageEmbed()
+					.setTitle("FRC Bot Help")
+					.setColor("#005FA8")
+					.setDescription("`{}` marks an input parameter, when specifying an input parameter, do not actually type the `{}`\n\n`?` marks an optional parameter, if you choose to specify an optional parameter, do not actually type the `?`, if you choose to not specify the parameter, leave the field blank\n\n`@user` refers to the user, not the username (example: <@!" + client.user.id + ">, not @FRC Bot)")
+					.addFields({
+						name: prefix + "info",
+						value: "Shows information about this bot",
+						inline: false
+					}, {
+						name: prefix + "team {team_number}",
+						value: "Shows information for a team",
+						inline: false
+					}, {
+						name: prefix + "event {event_key}",
+						value: "Shows information for an event",
+						inline: false
+					}, {
+						name: prefix + "teams {event_key}",
+						value: "Shows the teams registered for an event",
+						inline: false
+					}, {
+						name: prefix + "matches {event_key} {team_number}",
+						value: "Shows the matches for a team",
+						inline: false
+					}, {
+						name: prefix + "match {event_key} {type} {set} {match}",
+						value: "Shows the stats for a match (types are `quals`, `eighths`, `quarters`, `semis`, `finals`), for qualification and finals matches use `1` for set",
+						inline: false
+					}, {
+						name: prefix + "alliances {event_key}",
+						value: "Shows the elimination alliances for an event",
+						inline: false
+					}, {
+						name: prefix + "rankings {event_key}",
+						value: "Shows the rankings for an event",
+						inline: false
+					}, {
+						name: prefix + "awards {event_key}",
+						value: "Shows the awards for an event",
+						inline: false
+					}, {
+						name: prefix + "teamawards {team_number}",
+						value: "Shows the awards for a team",
+						inline: false
+					}, {
+						name: prefix + "teamevents {team_number}",
+						value: "Shows the events for a team",
+						inline: false
+					})
+					.setFooter({
+						text: footer
+					});
+					channel.send({ embeds: [resultEmbed] }).catch((err) => {
+						console.log(err);
+					});
+				break;
+			case `${prefix}info`:
+				resultEmbed = new Discord.MessageEmbed()
+					.setTitle("FRC Bot Info")
+					.setColor("#005FA8")
+					.addFields({
+						name: "Website (Bot Invite Link)",
+						value: "[frcbot.togatech.org](https://frcbot.togatech.org/)",
+						inline: false
+					}, {
+						name: "GitHub (Source Code)",
+						value: "[github.com/CMEONE/FRCBot](https://github.com/CMEONE/FRCBot)",
+						inline: false
+					})
+					.setFooter({
+						text: footer
+					});
+					channel.send({ embeds: [resultEmbed] }).catch((err) => {
+						console.log(err);
+					});
 				break;
 			case `${prefix}team`:
 				if(args.length < 1 || isNaN(parseInt(args[0]))) {
