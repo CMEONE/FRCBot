@@ -43,8 +43,8 @@ function setStatus() {
 	}
 }
 
-const version_int = 2;
-const version = "v1.0.1";
+const version_int = 3;
+const version = "v1.0.2";
 let update_waiting = false;
 let old_footer = footer;
 async function checkForUpdates() {
@@ -102,15 +102,15 @@ function matchOverview(comp_level, set_number, match_number) {
 
 function formatWebcast(webcast) {
 	if(webcast.type == "twitch") {
-		return `[Twitch - ${webcast.channel}](https://www.twitch.tv/${webcast.channel})`;
+		return `[Twitch - ${webcast.key || webcast.channel}](https://www.twitch.tv/${webcast.key || webcast.channel})`;
 	} else if(webcast.type == "youtube") {
-		return `[YouTube](https://youtube.com/watch?v=${webcast.channel})`;
+		return `[YouTube](https://youtube.com/watch?v=${webcast.key || webcast.channel})`;
 	} else if(webcast.type == "livestream") {
-		return `[Livestream - ${webcast.channel}](https://livestream.com/accounts/${webcast.channel}/events/${webcast.file})`;
+		return `[Livestream - ${webcast.key || webcast.channel}](https://livestream.com/accounts/${webcast.key || webcast.channel}/events/${webcast.file})`;
 	} else if(webcast.type == "direct_link") {
-		return `[Other](${webcast.channel})`;
+		return `[Other](${webcast.key || webcast.channel})`;
 	} else {
-		return `${webcast.type} - ${webcast.channel}`
+		return `${webcast.type} - ${webcast.key || webcast.channel}`
 	}
 }
 
@@ -184,6 +184,10 @@ client.on("messageCreate", async (msg) => {
 					}, {
 						name: prefix + "team {team_number}",
 						value: "Shows information for a team",
+						inline: false
+					}, {
+						name: prefix + "eventsearch {year} {...event_name}",
+						value: "Searches for an event in a given year by the event name",
 						inline: false
 					}, {
 						name: prefix + "event {event_key}",
