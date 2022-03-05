@@ -2,7 +2,7 @@
 A feature-rich Discord bot for FRC teams
 
 ## Table of Contents
-- [Add Hosted Instance to Server](#add-hosted-instance-to-server)
+- [Add Official Hosted Instance to Server](#add-official-hosted-instance-to-server)
 - [Setup](#setup)
 	- [Install Node.js and NPM](#install-nodejs-and-npm)
 	- [Install Dependencies](#install-dependencies)
@@ -12,7 +12,7 @@ A feature-rich Discord bot for FRC teams
 	- [Add to Server](#add-to-server)
 	- [Run the Bot](#run-the-bot)
 
-## Add Hosted Instance to Server
+## Add Official Hosted Instance to Server
 FRC Bot provides a hosted instance of the bot at [frcbot.togatech.org](https://frcbot.togatech.org). If you want to host your own instance of the bot, please see the [setup guide](#setup) below.
 
 ## Setup
@@ -39,7 +39,9 @@ Open a terminal and navigate to the root directory of FRC Bot. Run `npm i` to in
    Do not share your token with anyone. If someone obtains your bot user token, they gain full control of your bot. Be careful!
    ![Token](static/tokens.png)
 
-4. Within your bot user settings, make sure all "intents" settings are enabled.
+4. (Optional) Name your bot user and add a profile photo through the same interface as the above image! For reference, the name of the bot in the official hosted instance is `FRC Bot`, and the profile photo from the official hosted instance can be found [here](static/logo.png).
+
+5. Within your bot user settings, make sure all "intents" settings are enabled.
    ![Enabling intents](static/intents.png)
 
 ### Get TBA API Key
