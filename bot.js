@@ -43,8 +43,8 @@ function setStatus() {
 	}
 }
 
-const version_int = 3;
-const version = "v1.0.2";
+const version_int = 4;
+const version = "v1.0.3";
 let update_waiting = false;
 let old_footer = footer;
 async function checkForUpdates() {
@@ -186,8 +186,8 @@ client.on("messageCreate", async (msg) => {
 						value: "Shows information for a team",
 						inline: false
 					}, {
-						name: prefix + "eventsearch {year} {...event_name}",
-						value: "Searches for an event in a given year by the event name",
+						name: prefix + "eventsearch {year} {search_terms...}",
+						value: "Searches for an event in a given year by either the event name, location, or city",
 						inline: false
 					}, {
 						name: prefix + "event {event_key}",
@@ -484,6 +484,82 @@ client.on("messageCreate", async (msg) => {
 								.setColor("#005FA8")
 								.setDescription(`${event == null ? `The event requested does not exist or has not yet started.` : `The following details about event \`${event.name || event_key}\` have been provided by The Blue Alliance:`}`)
 								.addFields(fields)
+								.setFooter({
+									text: footer
+								});
+						}
+					} catch(err) {
+						console.log(err);
+						resultEmbed = new Discord.MessageEmbed()
+							.setTitle("Error")
+							.setColor("#FF0000")
+							.setDescription("Unable to connect to The Blue Alliance, please try again later!")
+							.setFooter({
+								text: footer
+							});
+					}
+				}
+				channel.send({ embeds: [resultEmbed] }).catch((err) => {
+					console.log(err);
+				});
+				break;
+			case `${prefix}eventsearch`:
+				if(args.length < 2 || isNaN(parseInt(args[0]))) {
+					resultEmbed = new Discord.MessageEmbed()
+						.setTitle("Error")
+						.setColor("#FF0000")
+						.setDescription("`year` must be a valid TBA event key, and `search_terms...` must be valid search terms, please try again!")
+						.setFooter({
+							text: footer
+						});
+				} else {
+					let year = parseInt(args[0]);
+					let search_terms = args.slice(1);
+					try {
+						let events = await (await fetch(`${tba_url}/events/${year}/simple?X-TBA-Auth-Key=${tba_key}`)).json();
+						console.log(events);
+						if(events.Error != null) {
+							resultEmbed = new Discord.MessageEmbed()
+								.setTitle("Error")
+								.setColor("#FF0000")
+								.setDescription(`Could not find events in the year \`${year}\`!`)
+								.setFooter({
+									text: footer
+								});
+						} else {
+							events = events.filter((event) => {
+								if(event == null) {
+									return false;
+								}
+								if(event.year != year) {
+									return false;
+								}
+								let returning = false;
+								for(let i = 0; i < search_terms.length; i++) {
+									if((event.name || "").toLowerCase().includes(search_terms[i])) {
+										returning = true;
+									} else if((event.location_name || "").toLowerCase().includes(search_terms[i])) {
+										returning = true;
+									} else if((event.city || "").toLowerCase().includes(search_terms[i])) {
+										returning = true;
+									} else if(search_terms[i].toLowerCase() == "worlds" && (event.name || "").toLowerCase().includes("championship")) {
+
+									} else {
+										return false;
+									}
+								}
+								return returning;
+							});
+							resultEmbed = new Discord.MessageEmbed()
+								.setTitle(`Search Results`)
+								.setColor("#005FA8")
+								.setDescription(`${events.length == 0 ? `Could not find any events that fulfilled the search criteria.` : events.map((event) => {
+									if(event.name == null) {
+										return `${event.key}${event.location_name != null ? ` - ${event.location_name}` : " - Unknown"}`;
+									} else {
+										return `${event.key} - ${event.name}${event.location_name != null ? ` (${event.location_name})` : ""}`;
+									}
+								}).join("\n")}`)
 								.setFooter({
 									text: footer
 								});
