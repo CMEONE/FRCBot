@@ -210,6 +210,10 @@ client.on("messageCreate", async (msg) => {
 						value: "Shows the elimination alliances for an event",
 						inline: false
 					}, {
+						name: prefix + "playoffs {event_key} {?type}",
+						value: "Shows the playoff matches for an event (optioanl types are `eighths`, `quarters`, `semis`, `finals`)",
+						inline: false
+					}, {
 						name: prefix + "rankings {event_key}",
 						value: "Shows the rankings for an event",
 						inline: false
@@ -663,7 +667,10 @@ client.on("messageCreate", async (msg) => {
 								.setTitle(`Matches for Team ${team_number}`)
 								.setColor("#005FA8")
 								.setDescription(`${matches.length == 0 ? `No matches found for team \`${team_number}\`.` : matches.map((match) => {
-									return `**${matchOverview(match.comp_level, match.set_number, match.match_number)}** <t:${match.actual_time || match.time}:R>`
+									return `**${matchOverview(match.comp_level, match.set_number, match.match_number)}** <t:${match.actual_time || match.time}:R>
+Red Alliance: ${match.alliances.red.team_keys.map(team => team.replace("frc", "")).join(", ")}
+Blue Alliance: ${match.alliances.blue.team_keys.map(team => team.replace("frc", "")).join(", ")}`;
+
 								}).join("\n")}`)
 								.setFooter({
 									text: footer
@@ -847,6 +854,76 @@ client.on("messageCreate", async (msg) => {
 										}
 									}).join(", ")}`
 								}).join("\n") : "Elimination alliances have not yet been decided for this event."}`)
+								.setFooter({
+									text: footer
+								});
+						}
+					} catch(err) {
+						console.log(err);
+						resultEmbed = new Discord.MessageEmbed()
+							.setTitle("Error")
+							.setColor("#FF0000")
+							.setDescription("Unable to connect to The Blue Alliance, please try again later!")
+							.setFooter({
+								text: footer
+							});
+					}
+				}
+				channel.send({ embeds: [resultEmbed] }).catch((err) => {
+					console.log(err);
+				});
+				break;
+			case `${prefix}playoffs`:
+				if(args.length < 1) {
+					resultEmbed = new Discord.MessageEmbed()
+						.setTitle("Error")
+						.setColor("#FF0000")
+						.setDescription("`event_key` must be a valid TBA event key, please try again!")
+						.setFooter({
+							text: footer
+						});
+				} else {
+					let event_key = args[0];
+					let type = (args[1] || "").toLowerCase();
+					try {
+						let matches = await (await fetch(`${tba_url}/event/${event_key}/matches?X-TBA-Auth-Key=${tba_key}`)).json();
+						// console.log(matches);
+						if(matches.Error != null) {
+							resultEmbed = new Discord.MessageEmbed()
+								.setTitle("Error")
+								.setColor("#FF0000")
+								.setDescription(`Could not find event \`${event_key}\`!`)
+								.setFooter({
+									text: footer
+								});
+						} else {
+							matches = matches.filter((match) => {
+								if(match.comp_level == "qm") {
+									return false;
+								}
+								if(type == "eighths" && match.comp_level != "ef") {
+									return false;
+								}
+								if(type == "quarters" && match.comp_level != "qf") {
+									return false;
+								}
+								if(type == "semis" && match.comp_level != "sf") {
+									return false;
+								}
+								if(type == "finals" && match.comp_level != "f") {
+									return false;
+								}
+								return true;
+							}).sort((match1, match2) => match1.time - match2.time);
+							// console.log(matches);
+							resultEmbed = new Discord.MessageEmbed()
+								.setTitle(`${type == "" ? "" : `${type[0].toUpperCase()}${type.substring(1)} `}Playoff Matches`)
+								.setColor("#005FA8")
+								.setDescription(`${matches.length == 0 ? `${type == "" ? "Playoff" : `${type[0].toUpperCase()}${type.substring(1)} playoff`} matches have not yet been decided for this event.` : matches.map((match) => {
+									return `**${matchOverview(match.comp_level, match.set_number, match.match_number)}** <t:${match.actual_time || match.time}:R>
+Red Alliance: ${match.alliances.red.team_keys.map(team => team.replace("frc", "")).join(", ")}
+Blue Alliance: ${match.alliances.blue.team_keys.map(team => team.replace("frc", "")).join(", ")}`;
+								}).join("\n")}`)
 								.setFooter({
 									text: footer
 								});
